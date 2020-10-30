@@ -5,9 +5,11 @@ A hacky workaround which put backlinks section into the document.
 Works with Obsidian 0.9.7+
 
 ### How it works
+Plugin creates a pane with backlinks and move that into the active document. 
+When you change your active document it will move backlinks section into new active document and update the content.
 
 ### Plans for future
-- Remove this plugins when official solution will come
+- Remove this plugin when official solution will come
 
 ### How to install the plugin
 - Copy over `main.js`, `styles.css`, `manifest.json` to your vault `vault/.obsidian/plugins/plugin-id/`.
