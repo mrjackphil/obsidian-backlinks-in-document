@@ -1,59 +1,116 @@
-import {Plugin, WorkspaceLeaf} from 'obsidian';
+import {MarkdownPreviewView, MarkdownView, Plugin, TFile, Workspace, WorkspaceLeaf} from 'obsidian';
+
+interface WorkspaceLeafExt extends WorkspaceLeaf {
+    id: string
+}
+
+interface WorkspaceExt extends Workspace {
+    rootSplit: WorkspaceLeaf
+    createLeafInParent: (w: WorkspaceLeaf) => WorkspaceLeafExt
+}
 
 interface PluginData {
-    backlinkLeaf: WorkspaceLeaf | null
+    prBacklinkLeaf: WorkspaceLeafExt | null
+    mdBacklinkLeaf: WorkspaceLeafExt | null
 }
 
 const defaultData: PluginData = {
-    backlinkLeaf: null,
+    prBacklinkLeaf: null,
+    mdBacklinkLeaf: null
 }
 
 export default class BacklinksInDocument extends Plugin {
     data: PluginData = defaultData
 
+    get hasOpenedMdFiles() {
+        return this.app.workspace.getLeavesOfType('markdown').length !== 0
+    }
+
+    get isPluginLeafExists() {
+        const openedBacklinksLeaves = this.app.workspace.getLeavesOfType('backlink').map((e: WorkspaceLeaf & {id: string}) => e?.id)
+        return openedBacklinksLeaves.includes(this.data.prBacklinkLeaf?.id)
+            && openedBacklinksLeaves.includes(this.data.mdBacklinkLeaf?.id)
+    }
+
+    createPluginLeaf() {
+        const workspace = this.app.workspace as WorkspaceExt
+        const root = workspace.rootSplit
+        this.data.mdBacklinkLeaf = workspace.createLeafInParent(root)
+        this.data.prBacklinkLeaf = workspace.createLeafInParent(root)
+    }
+
+    removeLeaf(id: string) {
+        const leaf = this.app.workspace.getLeafById(id)
+        leaf?.detach()
+    }
+
+    clear() {
+        this.data.prBacklinkLeaf?.detach()
+        this.data.mdBacklinkLeaf?.detach()
+    }
+
     async onload() {
         const saved = await this.loadData()
 
         this.app.workspace.on('layout-ready', () => {
-            if (saved.id) {
-                const savedBacklinkLeaf = this.app.workspace.getLeafById(saved.id)
-                if (savedBacklinkLeaf) {
-                    savedBacklinkLeaf.detach()
-                }
-            }
+            saved.ids.forEach((id: string) => this.removeLeaf(id))
         })
 
-        this.app.workspace.on('file-open', (file) => {
+        this.app.workspace.on('file-open', async (file) => {
             const activeLeaf = this.app.workspace.activeLeaf
             if (!activeLeaf) { return }
 
-            const doc = activeLeaf.view.containerEl.querySelector('.mod-root .CodeMirror-lines');
-            if (!doc) { return }
+            const activeView = activeLeaf.view
 
+            const isAllowedView = activeView instanceof MarkdownView || activeView instanceof MarkdownPreviewView
 
-            if (!this.data.backlinkLeaf) {
-                // @ts-ignore
-                const root = this.app.workspace.rootSplit
-                // @ts-ignore
-                this.data.backlinkLeaf = this.app.workspace.createLeafInParent(root) as WorkspaceLeaf
+            const isBacklinkView = activeView.getState().hasOwnProperty('backlinkCollapsed')
+
+            if (!this.hasOpenedMdFiles) {
+                this.clear()
+                return
             }
 
-            const { backlinkLeaf } = this.data
+            if (isBacklinkView) {
+                return
+            }
 
-            backlinkLeaf.setViewState({
+            if (!isAllowedView) {
+                this.clear()
+                return
+            }
+
+            if (!this.isPluginLeafExists) {
+                this.clear()
+                this.createPluginLeaf()
+            }
+
+            const { prBacklinkLeaf, mdBacklinkLeaf } = this.data
+
+            await prBacklinkLeaf.setViewState({
                 type: 'backlink',
                 state: {
                     file: file.name,
                 }
-            }).then(() => {
-                const leafEl = backlinkLeaf.view.containerEl.parentNode as HTMLElement
-                if (!leafEl) { return }
-
-                leafEl.style.marginTop = '50px'
-                doc.appendChild(leafEl)
-                // @ts-ignore
-                this.saveData({ id: backlinkLeaf.id })
             })
+
+            await mdBacklinkLeaf.setViewState({
+                type: 'backlink',
+                state: {
+                    file: file.name,
+                }
+            })
+
+            const mdLeafEl = mdBacklinkLeaf.view.containerEl.parentNode as HTMLElement
+            const prLeafEl = prBacklinkLeaf.view.containerEl.parentNode as HTMLElement
+
+            const mdEl = activeView.containerEl.querySelector('.mod-active .markdown-source-view .CodeMirror-lines')
+            const prEl = activeView.containerEl.querySelector('.mod-active .markdown-preview-view')
+
+            mdEl.appendChild(mdLeafEl)
+            prEl.appendChild(prLeafEl)
+            // @ts-ignore
+            this.saveData({ ids: [mdBacklinkLeaf.id, prBacklinkLeaf.id] })
         })
     }
 
