@@ -49,6 +49,27 @@ export default class BacklinksInDocument extends Plugin {
         this.data.mdBacklinkLeaf?.detach()
     }
 
+    async updateBacklinks(file: TFile) {
+        if (!file) { return }
+        const { prBacklinkLeaf, mdBacklinkLeaf } = this.data
+
+        console.log(file)
+        await prBacklinkLeaf?.setViewState({
+            type: 'backlink',
+            state: {
+                file: file.path,
+            }
+        })
+
+        await mdBacklinkLeaf?.setViewState({
+            type: 'backlink',
+            state: {
+                file: file.path,
+            }
+        })
+
+    }
+
     async onload() {
         const saved = await this.loadData()
 
@@ -87,20 +108,6 @@ export default class BacklinksInDocument extends Plugin {
 
             const { prBacklinkLeaf, mdBacklinkLeaf } = this.data
 
-            await prBacklinkLeaf.setViewState({
-                type: 'backlink',
-                state: {
-                    file: file.name,
-                }
-            })
-
-            await mdBacklinkLeaf.setViewState({
-                type: 'backlink',
-                state: {
-                    file: file.name,
-                }
-            })
-
             const mdLeafEl = mdBacklinkLeaf.view.containerEl.parentNode as HTMLElement
             const prLeafEl = prBacklinkLeaf.view.containerEl.parentNode as HTMLElement
 
@@ -109,8 +116,10 @@ export default class BacklinksInDocument extends Plugin {
 
             mdEl.appendChild(mdLeafEl)
             prEl.appendChild(prLeafEl)
+
+            await this.updateBacklinks(file)
             // @ts-ignore
-            this.saveData({ ids: [mdBacklinkLeaf.id, prBacklinkLeaf.id] })
+            await this.saveData({ ids: [mdBacklinkLeaf.id, prBacklinkLeaf.id] })
         })
     }
 
