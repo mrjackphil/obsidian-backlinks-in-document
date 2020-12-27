@@ -1,9 +1,11 @@
 .CodeMirror-lines > .workspace-leaf {
     margin-top: 50px;
+    contain: content;
 }
 
 .markdown-preview-view > .workspace-leaf {
     margin-top: -30vh;
+    height: 100%;
 }
 
 .markdown-preview-view.is-readable-line-width > .workspace-leaf {
