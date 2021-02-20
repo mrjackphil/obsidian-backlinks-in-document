@@ -53,7 +53,6 @@ export default class BacklinksInDocument extends Plugin {
         if (!file) { return }
         const { prBacklinkLeaf, mdBacklinkLeaf } = this.data
 
-        console.log(file)
         await prBacklinkLeaf?.setViewState({
             type: 'backlink',
             state: {
@@ -79,6 +78,7 @@ export default class BacklinksInDocument extends Plugin {
 
         this.app.workspace.on('file-open', async (file) => {
             const activeLeaf = this.app.workspace.activeLeaf
+
             if (!activeLeaf) { return }
 
             const activeView = activeLeaf.view
@@ -125,5 +125,6 @@ export default class BacklinksInDocument extends Plugin {
 
     onunload() {
         console.log('unloading plugin');
+        this.clear()
     }
 }
