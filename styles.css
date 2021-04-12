@@ -17,13 +17,13 @@
 .CodeMirror-lines > .workspace-leaf .backlink-pane {
     overflow-y: visible;
 }
-
-.mod-active .markdown-source-view .cm-scroller {
-    flex-direction: column;
+.is-mobile .mod-active .markdown-source-view {
+    overflow: auto;
+}
+.is-mobile .mod-active .markdown-source-view .cm-content {
+    padding-bottom: 1rem !important;
 }
 
-.mod-active .markdown-source-view .cm-scroller > .workspace-leaf {
-    width: 100%;
+.is-mobile .mod-active .markdown-source-view .workspace-leaf {
     min-height: 100vh;
 }
-

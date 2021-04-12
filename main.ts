@@ -113,7 +113,7 @@ export default class BacklinksInDocument extends Plugin {
 
             const mdEl =
                 activeView.containerEl.querySelector('.mod-active .markdown-source-view .CodeMirror-lines')
-                || document.querySelector(".mod-active .markdown-source-view .cm-scroller")
+                || document.querySelector(".mod-active .markdown-source-view")
             const prEl = activeView.containerEl.querySelector('.mod-active .markdown-preview-view')
 
             mdEl?.appendChild(mdLeafEl)
