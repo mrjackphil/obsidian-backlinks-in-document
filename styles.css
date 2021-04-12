@@ -24,6 +24,7 @@
     padding-bottom: 1rem !important;
 }
 
-.is-mobile .mod-active .markdown-source-view .workspace-leaf {
+.is-mobile .mod-active .markdown-source-view .workspace-leaf,
+.is-mobile .mod-active .markdown-source-view .workspace-leaf .backlink-pane {
     min-height: 100vh;
 }
