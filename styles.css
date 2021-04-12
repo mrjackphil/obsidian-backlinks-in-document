@@ -17,3 +17,13 @@
 .CodeMirror-lines > .workspace-leaf .backlink-pane {
     overflow-y: visible;
 }
+
+.mod-active .markdown-source-view .cm-scroller {
+    flex-direction: column;
+}
+
+.mod-active .markdown-source-view .cm-scroller > .workspace-leaf {
+    width: 100%;
+    min-height: 100vh;
+}
+

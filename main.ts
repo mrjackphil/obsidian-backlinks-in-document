@@ -111,11 +111,13 @@ export default class BacklinksInDocument extends Plugin {
             const mdLeafEl = mdBacklinkLeaf.view.containerEl.parentNode as HTMLElement
             const prLeafEl = prBacklinkLeaf.view.containerEl.parentNode as HTMLElement
 
-            const mdEl = activeView.containerEl.querySelector('.mod-active .markdown-source-view .CodeMirror-lines')
+            const mdEl =
+                activeView.containerEl.querySelector('.mod-active .markdown-source-view .CodeMirror-lines')
+                || document.querySelector(".mod-active .markdown-source-view .cm-scroller")
             const prEl = activeView.containerEl.querySelector('.mod-active .markdown-preview-view')
 
-            mdEl.appendChild(mdLeafEl)
-            prEl.appendChild(prLeafEl)
+            mdEl?.appendChild(mdLeafEl)
+            prEl?.appendChild(prLeafEl)
 
             await this.updateBacklinks(file)
             // @ts-ignore
