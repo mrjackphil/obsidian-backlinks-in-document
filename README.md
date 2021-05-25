@@ -2,6 +2,10 @@
 
 A hacky workaround which put backlinks section into the document.
 
+### ⚠ Plugin deprecation
+Plugin was removed from the Obsidian Community Plugin section. The core Obsidian's team made their plugin and made it as part of the Core Plugins for Obsidian 0.12.4+. 
+
+### Requirements
 Works with Obsidian 0.9.7+
 
 ### How it works
